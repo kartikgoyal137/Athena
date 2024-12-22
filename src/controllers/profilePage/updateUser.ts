@@ -22,7 +22,6 @@ const requiredDetailsPresent = (body: onboardRequest['body']) => {
   return true
 }
 
-// Onboard user
 const updateUser = async (req: onboardRequest, res: Response) => {
   const { personalDetails, educationalDetails, socialHandles, user } = req.body
   if (!requiredDetailsPresent(req.body)) {
@@ -30,18 +29,41 @@ const updateUser = async (req: onboardRequest, res: Response) => {
   }
 
   try {
-    // Update user details
-    await userModel.findByIdAndUpdate(
-      user.userId,
-      {
-        personalDetails: personalDetails,
-        educationalDetails: educationalDetails,
-        socialHandles: socialHandles,
-        onboardingComplete: true,
-      },
-    )
+    const exists = await userModel.findById(user.userId)
+    if (exists) {
+      try {
+        // Update user details
+        const updatedUser = await userModel.findByIdAndUpdate(
+          user.userId,
+          {
+            personalDetails: personalDetails,
+            educationalDetails: educationalDetails,
+            socialHandles: socialHandles,
+            onboardingComplete: true,
+          },
+          {
+            new: true,
+            runValidators: true,
+          },
+        )
 
-    res.status(200).send('success')
+        res.status(200).send(updatedUser)
+      } catch (error: unknown) {
+        sendFailureResponse({
+          res,
+          error,
+          messageToSend: 'Error updating user',
+          errorCode: 500,
+        })
+      }
+    } else {
+      sendFailureResponse({
+        res,
+        error: new Error('Not Found'),
+        messageToSend: 'User not found',
+        errorCode: 500,
+      })
+    }
   } catch (error: unknown) {
     sendFailureResponse({
       res,
