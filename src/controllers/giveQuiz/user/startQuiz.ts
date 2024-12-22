@@ -45,32 +45,32 @@ const startQuiz = async (req: startQuizRequest, res: Response) => {
     }
 
     switch (currentStatus) {
-      case QuizUserStatus.USER_IS_GIVING_QUIZ:
+      case QuizUserStatus.userIsGivingQuiz:
         return res.status(200).json({
           success: true,
           message: 'Quiz resumed successfully',
         })
 
-      case QuizUserStatus.USER_NOT_STARTED:
+      case QuizUserStatus.userNotStarted:
         await quiz.save()
         return res.status(200).json({
           success: true,
           message: 'Quiz started successfully',
         })
 
-      case QuizUserStatus.AUTO_SUBMIT_QUIZ:
+      case QuizUserStatus.autoSubmitQuiz:
         dbUser.submitted = true
         await quiz.save()
         console.log('Auto submit quiz')
         return res.status(200).json({ message: 'Quiz auto submitted' })
 
-      case QuizUserStatus.SUBMITTED:
+      case QuizUserStatus.submitted:
         return res.status(200).json({ message: 'Quiz already submitted' })
 
-      case QuizUserStatus.QUIZ_NOT_ACCEPTING_ANSWERS:
+      case QuizUserStatus.quizNotAcceptingAnswers:
         return res.status(200).json({ message: 'Quiz not accepting answers' })
 
-      case QuizUserStatus.QUIZ_NOT_STARTED:
+      case QuizUserStatus.quizNotStarted:
         return res.status(200).json({ message: 'Quiz not started' })
       default:
         return sendFailureResponse({

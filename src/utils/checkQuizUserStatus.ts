@@ -4,16 +4,16 @@ import sendFailureResponse from './failureResponse'
 
 const checkQuizUserStatus = (quiz: IQuiz, user: IParticipant): QuizUserStatus => {
   if (!quiz.isPublished) {
-    return QuizUserStatus.QUIZ_NOT_STARTED
+    return QuizUserStatus.quizNotStarted
   }
   if (!quiz.isAcceptingAnswers) {
-    return QuizUserStatus.QUIZ_NOT_ACCEPTING_ANSWERS
+    return QuizUserStatus.quizNotAcceptingAnswers
   }
   if (user.submitted) {
-    return QuizUserStatus.SUBMITTED
+    return QuizUserStatus.submitted
   }
   if (user.startTime === 0) {
-    return QuizUserStatus.USER_NOT_STARTED
+    return QuizUserStatus.userNotStarted
   }
 
   const currentTime = new Date().getTime()
@@ -22,14 +22,14 @@ const checkQuizUserStatus = (quiz: IQuiz, user: IParticipant): QuizUserStatus =>
   const timeInQuiz = currentTime - user.startTime
 
   if (timeInQuiz >= quizDurationInMs) {
-    return QuizUserStatus.AUTO_SUBMIT_QUIZ
+    return QuizUserStatus.autoSubmitQuiz
   }
-  return QuizUserStatus.USER_IS_GIVING_QUIZ
+  return QuizUserStatus.userIsGivingQuiz
 }
 
 const isQuizUserStatusValid = (currentStatus: QuizUserStatus, res: Response): boolean => {
   switch (currentStatus) {
-    case QuizUserStatus.QUIZ_NOT_ACCEPTING_ANSWERS:
+    case QuizUserStatus.quizNotAcceptingAnswers:
       sendFailureResponse({
         res,
         errorCode: 400,
@@ -37,7 +37,7 @@ const isQuizUserStatusValid = (currentStatus: QuizUserStatus, res: Response): bo
         messageToSend: 'Quiz not accepting answers',
       })
       return false
-    case QuizUserStatus.QUIZ_NOT_STARTED:
+    case QuizUserStatus.quizNotStarted:
       sendFailureResponse({
         res,
         errorCode: 400,
@@ -45,7 +45,7 @@ const isQuizUserStatusValid = (currentStatus: QuizUserStatus, res: Response): bo
         messageToSend: 'Quiz not started',
       })
       return false
-    case QuizUserStatus.USER_NOT_STARTED:
+    case QuizUserStatus.userNotStarted:
       sendFailureResponse({
         res,
         errorCode: 400,
@@ -53,7 +53,7 @@ const isQuizUserStatusValid = (currentStatus: QuizUserStatus, res: Response): bo
         messageToSend: 'User has not started the quiz',
       })
       return false
-    case QuizUserStatus.SUBMITTED:
+    case QuizUserStatus.submitted:
       sendFailureResponse({
         res,
         errorCode: 400,
@@ -61,9 +61,9 @@ const isQuizUserStatusValid = (currentStatus: QuizUserStatus, res: Response): bo
         messageToSend: 'User has already submitted the quiz',
       })
       return false
-    case QuizUserStatus.AUTO_SUBMIT_QUIZ:
+    case QuizUserStatus.autoSubmitQuiz:
       return true
-    case QuizUserStatus.USER_IS_GIVING_QUIZ:
+    case QuizUserStatus.userIsGivingQuiz:
       return true
     default:
       sendFailureResponse({

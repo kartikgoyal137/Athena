@@ -54,7 +54,7 @@ const createOrUpdateResponse = async (req: createOrUpdateResponseRequest, res: R
       return
     }
 
-    if (currentStatus === QuizUserStatus.AUTO_SUBMIT_QUIZ) {
+    if (currentStatus === QuizUserStatus.autoSubmitQuiz) {
       dbUser.submitted = true
       await quiz.save()
       console.log('Auto submit quiz')

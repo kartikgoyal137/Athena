@@ -52,10 +52,10 @@ export enum QuizCode {
 }
 
 export enum QuizUserStatus {
-  QUIZ_NOT_ACCEPTING_ANSWERS,
-  QUIZ_NOT_STARTED,
-  USER_NOT_STARTED,
-  USER_IS_GIVING_QUIZ,
-  SUBMITTED,
-  AUTO_SUBMIT_QUIZ,
+  quizNotAcceptingAnswers,
+  quizNotStarted,
+  userNotStarted,
+  userIsGivingQuiz,
+  submitted,
+  autoSubmitQuiz,
 }
