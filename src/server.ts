@@ -13,7 +13,6 @@ import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
 import mongoSanitize from 'express-mongo-sanitize'
 import logger from '@utils/logger'
-import timerService from './services/timer'
 import profilePageRouter from '@routers/profilePage'
 
 // Initialize server
