@@ -7,6 +7,7 @@ import authRouter from '@routers/auth'
 import createQuizRouter from '@routers/createQuiz'
 import giveQuizRouter from '@routers/giveQuiz'
 import checkQuizRouter from '@routers/checkQuiz'
+import commonRouter from '@routers/common'
 import logRouter from '@routers/log'
 import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
@@ -58,6 +59,7 @@ app.use('/auth', authRouter)
 app.use('/checkQuiz', checkQuizRouter)
 app.use('/createQuiz', createQuizRouter)
 app.use('/giveQuiz', giveQuizRouter)
+app.use('/common', commonRouter)
 app.use('/log', logRouter)
 app.get('/', (req: Request, res: Response) => {
   res.send('Express + TypeScript Server')
