@@ -1,3 +1,4 @@
+import QuestionModel from '@models/question/questionModel'
 import ResponseModel from '@models/response/responseModel'
 import sendFailureResponse from '@utils/failureResponse'
 import sendInvalidInputResponse from '@utils/invalidInputResponse'
@@ -29,6 +30,12 @@ const checkResponse = async (req: checkResponseRequest, res: Response) => {
       marksAwarded: marksAwarded,
       checkedBy: user.userId,
     })
+
+    //Increment the checkedAttempts of the question
+    await QuestionModel.findByIdAndUpdate(response.questionId, {
+      $inc: { checkedAttempts: 1 },
+    })
+
     return res.status(200).json({
       message: 'Response checked',
     })
