@@ -10,5 +10,6 @@ router.post('/github/token', authController.getGithubToken)
 router.post('/onboard', isAuth, authController.onboard)
 router.get('/', isOnboard, authController.getDashBoard)
 router.get('/user', authController.getUser)
+router.post('/logout', authController.logout)
 
 export default router

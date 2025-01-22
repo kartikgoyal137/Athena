@@ -1,5 +1,6 @@
 export { default as onboard } from './onboard'
 export { default as getDashBoard } from './getDashBoard'
 export { default as getUser } from './getUser'
+export { default as logout } from './logout'
 export { default as getGoogleToken } from './getGoogleToken'
 export { default as getGithubToken } from './getGithubToken'
