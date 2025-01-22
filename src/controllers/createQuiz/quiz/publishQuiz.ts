@@ -69,7 +69,7 @@ const publishQuiz = async (req: publishQuizRequest, res: Response) => {
     // publish the quiz
     const publishedQuiz = await QuizModel.findByIdAndUpdate(
       quizId,
-      { isPublished: true },
+      { isPublished: true, isAcceptingAnswers: true },
       { new: true },
     )
 
