@@ -32,7 +32,7 @@ const quizSchema = new Schema<IQuiz>({
             },
             value: {
               type: String,
-              required: false,
+              required: false, //TODO: Do sanity checking for required fields 
             },
           },
         ],
