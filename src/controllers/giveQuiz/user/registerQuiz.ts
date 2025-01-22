@@ -58,15 +58,9 @@ const registerQuiz = async (req: registerQuizRequest, res: Response) => {
     const participant = {
       userId: user.userId,
       submitted: false,
-      // isGivingQuiz: false,
       registrationData: {
         customFields,
       },
-      // time: {
-      //   enterQuiz: 0,
-      //   left: (quiz?.quizMetadata?.duration ?? 0) * 60000,
-      //   endQuiz: 0,
-      // },
       startTime: 0,
     }
     quiz.participants?.push(participant)
