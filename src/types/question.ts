@@ -4,6 +4,7 @@ export interface IQuestion {
   _id?: Types.ObjectId
   type: QuestionTypes
   description: string
+  checkersNotes: string
   options?: {
     id: string
     label: string

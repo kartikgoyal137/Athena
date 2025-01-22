@@ -11,6 +11,9 @@ const questionSchema = new Schema<IQuestion>({
   description: {
     type: String,
   },
+  checkersNotes: {
+    type: String,
+  },
   options: [
     {
       id: {
