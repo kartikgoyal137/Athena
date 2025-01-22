@@ -3,6 +3,7 @@ import ResponseModel from '@models/response/responseModel'
 import { JwtPayload } from 'types'
 import sendFailureResponse from '@utils/failureResponse'
 import sendInvalidInputResponse from '@utils/invalidInputResponse'
+import QuestionModel from '@models/question/questionModel'
 
 interface deleteResponseRequest extends Request {
   body: {
@@ -23,6 +24,12 @@ const deleteResponse = async (req: deleteResponseRequest, res: Response) => {
       return sendInvalidInputResponse(res)
     }
     await response.delete()
+
+    //Decrement the totalAttempts of the question
+    await QuestionModel.findByIdAndUpdate(questionId, 
+      { $inc: { totalAttempts: -1 } 
+    })
+    
     res.status(200).json({ message: 'Response deleted' })
   } catch (error: unknown) {
     sendFailureResponse({

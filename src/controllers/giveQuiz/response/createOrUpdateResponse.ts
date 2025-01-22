@@ -76,6 +76,11 @@ const createOrUpdateResponse = async (req: createOrUpdateResponseRequest, res: R
         status,
       })
       await newResponse.save()
+
+      //here also increment the totalAttempts of the question
+      await QuestionModel.findByIdAndUpdate(req.params.questionId, {
+        $inc: { totalAttempts: 1 },
+      })
       res.status(201).json({ message: 'Response created' })
     } else {
       await ResponseModel.findByIdAndUpdate(response._id, {
