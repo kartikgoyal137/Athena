@@ -25,10 +25,8 @@ const getGoogleToken = async (req: Request, res: Response) => {
       'personalDetails.emailAdd': googleUser.data.email,
       oauthProvider: OAuthProviders.google,
     })
-    let userId: Types.ObjectId | undefined
-    if (user) {
-      userId = user._id
-    } else {
+    let userId: Types.ObjectId | undefined = user?._id
+    if (!user) {
       const newUser = new UserModel({
         oauthProvider: OAuthProviders.google,
         emailAdd: googleUser.data.email,
