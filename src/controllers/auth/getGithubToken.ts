@@ -5,12 +5,13 @@ import { OAuthProviders, UserRoles, IUser, JwtPayload } from 'types'
 import { createToken } from '@utils/token'
 import { Types } from 'mongoose'
 import sendFailureResponse from '@utils/failureResponse'
+import { GITHUB_TOKEN_URL } from 'config'
 
 const getGithubToken = async (req: Request, res: Response) => {
   try {
     const { code } = req.body
 
-    const response = await axios.post(`${process.env.GITHUB_TOKEN_URL}${code}`, {
+    const response = await axios.post(`${GITHUB_TOKEN_URL}${code}`, {
       headers: {
         accept: 'application/json',
       },

@@ -14,6 +14,7 @@ import morgan from 'morgan'
 import mongoSanitize from 'express-mongo-sanitize'
 import logger from '@utils/logger'
 import profilePageRouter from '@routers/profilePage'
+import { FRONTEND_URL } from 'config'
 
 // Initialize server
 dotenv.config()
@@ -23,7 +24,7 @@ const app: Express = express()
 const port = process.env.PORT
 
 // Middlewares
-app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }))
+app.use(cors({ origin: FRONTEND_URL, credentials: true }))
 app.use(morgan('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
