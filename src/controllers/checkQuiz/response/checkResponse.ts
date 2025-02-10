@@ -25,16 +25,20 @@ const checkResponse = async (req: checkResponseRequest, res: Response) => {
     if (!response || response?.quizId.toString() !== quizId) {
       return sendInvalidInputResponse(res)
     }
+
     await ResponseModel.findByIdAndUpdate(responseId, {
       status: ResponseStatus.checked,
       marksAwarded: marksAwarded,
       checkedBy: user.userId,
     })
 
-    //Increment the checkedAttempts of the question
-    await QuestionModel.findByIdAndUpdate(response.questionId, {
-      $inc: { checkedAttempts: 1 },
-    })
+    //Increment the checkedAttempts of the question if the question is not already checked
+    if (response.status != ResponseStatus.checked) {
+      await QuestionModel.findByIdAndUpdate(response.questionId, {
+        $inc: { checkedAttempts: 1 },
+      })
+    }
+    
 
     return res.status(200).json({
       message: 'Response checked',
