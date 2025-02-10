@@ -35,7 +35,7 @@ const generateLeaderBoard = async (req: generateLeaderBoardRequest, res: Respons
     
     const participants: Participant[] = [];
 
-    let Questions = [];
+    let Questions: any[] = [];
 
     if (sectionIndex != null) {
       Questions = quiz.sections[sectionIndex]?.questions || [];
