@@ -27,6 +27,7 @@ const getQuestion = async (req: getQuestionRequest, res: Response) => {
       description: question.description,
       options: question.options,
       maxMarks: question.maxMarks,
+      checkersNotes: question.checkersNotes,
     }
     return res.status(200).json({
       message: 'Question fetched successfully',
