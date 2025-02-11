@@ -3,6 +3,7 @@ import { Request, Response } from 'express'
 import QuizModel from '@models/quiz/quizModel'
 import { IQuiz, JwtPayload } from 'types'
 import sendFailureResponse from '@utils/failureResponse'
+import { Types } from 'mongoose'
 
 interface updateQuizRequest extends Request {
   body: {
@@ -22,7 +23,10 @@ const updateQuiz = async (req: updateQuizRequest, res: Response) => {
   }
 
   // get the data from the request body
-  const { managers, quizMetadata, registrationMetadata } = req.body
+  const { managers: managerStrings, quizMetadata, registrationMetadata } = req.body
+
+  // Parsing to Object ID from string[]
+  const managers: Types.ObjectId[] | undefined = managerStrings?.map((id) => new Types.ObjectId(id))
 
   const quizId = req.params.quizId
   try {
@@ -46,12 +50,10 @@ const updateQuiz = async (req: updateQuizRequest, res: Response) => {
         errorCode: 404,
       })
     } else {
-      return res
-        .status(200)
-        .send({
-          message: 'Quiz updated',
-          updatedParameters: { quizId: quiz._id, managers, quizMetadata, registrationMetadata },
-        })
+      return res.status(200).send({
+        message: 'Quiz updated',
+        updatedParameters: { quizId: quiz._id, managers, quizMetadata, registrationMetadata },
+      })
     }
   } catch (error: unknown) {
     sendFailureResponse({
