@@ -58,9 +58,12 @@ const getStartTime = async (req: getStartTimeRequest, res: Response) => {
       })
     } else if (currentStatus === QuizUserStatus.userNotStarted) {
       const quizStartTime = new Date().getTime()
-      dbUser.startTime = quizStartTime
-      await quiz.save()
-      const userLeftTime = calculateUserLeftTime(quizStartTime);
+      await QuizModel.findByIdAndUpdate(
+        quiz._id,
+        { $set: { 'participants.$[participant].startTime': quizStartTime } },
+        { arrayFilters: [{ 'participant.userId': dbUser.userId }] },
+      )
+      const userLeftTime = calculateUserLeftTime(quizStartTime)
       return res.status(200).json({
         success: true,
         message: 'Quiz timer set successfully',

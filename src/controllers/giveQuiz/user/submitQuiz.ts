@@ -27,15 +27,17 @@ const submitQuiz = async (req: submitQuizRequest, res: Response) => {
     if (!quiz || !quiz.isPublished) {
       return sendInvalidInputResponse(res)
     }
-
-    // set isGivingQuiz to false and isSubmitted true for the user
-    quiz.participants?.forEach((participant) => {
-      if (participant?.userId?.equals(user.userId)) {
-        participant.submitted = true
-      }
-    })
-
-    await quiz.save()
+    await QuizModel.findByIdAndUpdate(
+      quizId,
+      {
+        $set: {
+          'participants.$[elem].submitted': true,
+        },
+      },
+      {
+        arrayFilters: [{ 'elem.userId': user.userId }],
+      },
+    )
 
     return res.status(200).json({
       success: true,
