@@ -26,8 +26,7 @@ const startQuiz = async (req: startQuizRequest, res: Response) => {
   try {
     const quiz = await QuizModel.findById(quizId)
     const dbUser = isParticipant(user.userId, quiz?.participants)
-    const currentStatus = checkQuizUserStatus(quiz as IQuiz, dbUser as IParticipant)
-
+    
     if (!quiz || !quiz.isPublished || !dbUser) {
       return sendFailureResponse({
         res,
@@ -36,13 +35,14 @@ const startQuiz = async (req: startQuizRequest, res: Response) => {
         errorCode: 400,
       })
     }
-
+    
     if (quiz.quizMetadata?.accessCode !== accessCode) {
       return res.status(401).json({
         success: false,
         message: 'Invalid access code',
       })
     }
+    const currentStatus = checkQuizUserStatus(quiz as IQuiz, dbUser as IParticipant)
 
     switch (currentStatus) {
       case QuizUserStatus.userIsGivingQuiz:
