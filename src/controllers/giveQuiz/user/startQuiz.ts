@@ -52,15 +52,17 @@ const startQuiz = async (req: startQuizRequest, res: Response) => {
         })
 
       case QuizUserStatus.userNotStarted:
-        await quiz.save()
         return res.status(200).json({
           success: true,
           message: 'Quiz started successfully',
         })
 
       case QuizUserStatus.autoSubmitQuiz:
-        dbUser.submitted = true
-        await quiz.save()
+        await QuizModel.findByIdAndUpdate(
+          quizId,
+          { $set: { 'participants.$[participant].submitted': true } },
+          { arrayFilters: [{ 'participant.userId': dbUser.userId }] },
+        )
         console.log('Auto submit quiz')
         return res.status(200).json({ message: 'Quiz auto submitted' })
 

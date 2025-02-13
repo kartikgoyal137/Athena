@@ -1,5 +1,6 @@
 import { Response, Request } from 'express'
 import { JwtPayload } from 'types'
+import QuizModel from '@models/quiz/quizModel'
 import sendFailureResponse from '@utils/failureResponse'
 import sendInvalidInputResponse from '@utils/invalidInputResponse'
 import getQuiz from '@utils/getQuiz'
@@ -54,20 +55,21 @@ const registerQuiz = async (req: registerQuizRequest, res: Response) => {
       })
     }
 
-    // Add participant to quiz
-    const participant = {
-      userId: user.userId,
-      submitted: false,
-      registrationData: {
-        customFields,
+    const updatedQuiz = await QuizModel.findByIdAndUpdate(
+      quizId,
+      {
+        $push: {
+          participants: {
+            userId: user.userId,
+            submitted: false,
+            registrationData: { customFields },
+            startTime: 0,
+          },
+        },
       },
-      startTime: 0,
-    }
-    quiz.participants?.push(participant)
-
-    // Save quiz
-    const savedQuiz = await quiz.save()
-    if (!savedQuiz) {
+      { new: true },
+    )
+    if (!updatedQuiz) {
       return sendFailureResponse({
         res,
         error: 'Error registering quiz',
@@ -76,7 +78,7 @@ const registerQuiz = async (req: registerQuizRequest, res: Response) => {
       })
     }
 
-    return res.status(200).send({ message: 'Quiz registered', quizId: savedQuiz._id })
+    return res.status(200).send({ message: 'Quiz registered', quizId: updatedQuiz._id })
   } catch (err) {
     console.log(err)
     return sendFailureResponse({

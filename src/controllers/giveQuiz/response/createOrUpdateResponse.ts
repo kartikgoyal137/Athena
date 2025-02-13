@@ -4,6 +4,7 @@ import { JwtPayload, IResponse, QuizUserStatus } from 'types'
 import sendFailureResponse from '@utils/failureResponse'
 import sendInvalidInputResponse from '@utils/invalidInputResponse'
 import QuestionModel from '@models/question/questionModel'
+import QuizModel from '@models/quiz/quizModel'
 import getQuiz from '@utils/getQuiz'
 import { Types } from 'mongoose'
 import isParticipant from '@utils/isParticipant'
@@ -55,8 +56,11 @@ const createOrUpdateResponse = async (req: createOrUpdateResponseRequest, res: R
     }
 
     if (currentStatus === QuizUserStatus.autoSubmitQuiz) {
-      dbUser.submitted = true
-      await quiz.save()
+      await QuizModel.findByIdAndUpdate(
+        quiz._id,
+        { $set: { 'participants.$[participant].submitted': true } },
+        { arrayFilters: [{ 'participant.userId': dbUser.userId }] },
+      )
       console.log('Auto submit quiz')
       return res.status(200).json({ message: 'Quiz auto submitted' })
     }

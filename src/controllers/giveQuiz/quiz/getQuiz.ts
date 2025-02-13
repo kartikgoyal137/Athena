@@ -55,8 +55,11 @@ const getQuiz = async (req: getQuizRequest, res: Response) => {
       }
 
       if (currentStatus === QuizUserStatus.autoSubmitQuiz) {
-        dbUser.submitted = true
-        await quiz.save()
+        await QuizModel.findByIdAndUpdate(
+          quiz._id,
+          { $set: { 'participants.$[participant].submitted': true } },
+          { arrayFilters: [{ 'participant.userId': dbUser.userId }] },
+        )
         console.log('Auto submit quiz')
         return res.status(200).json({ message: 'Quiz auto submitted' })
       }
