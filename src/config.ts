@@ -9,9 +9,9 @@ export const MONGOURI = isProduction
   : process.env.MONGOURI_DEV
 
 // Frontend URL
-export const FRONTEND_URL = isProduction
-  ? process.env.FRONTEND_URL_PROD
-  : process.env.FRONTEND_URL_DEV
+export const FRONTEND_URLS = isProduction
+  ? process.env.FRONTEND_URL_PROD?.split(',')
+  : process.env.FRONTEND_URL_DEV?.split(',')
 
 // Google OAuth
 export const GOOGLE_CLIENT_ID = isProduction
