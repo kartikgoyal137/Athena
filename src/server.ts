@@ -14,7 +14,7 @@ import morgan from 'morgan'
 import mongoSanitize from 'express-mongo-sanitize'
 import logger from '@utils/logger'
 import profilePageRouter from '@routers/profilePage'
-import { FRONTEND_URL } from 'config'
+import { FRONTEND_URLS } from 'config'
 import cluster from 'cluster'
 import os from 'os'
 
@@ -40,7 +40,7 @@ if (cluster.isMaster) {
   const port = process.env.PORT
 
   // Middlewares
-  app.use(cors({ origin: FRONTEND_URL, credentials: true }))
+  app.use(cors({ origin: FRONTEND_URLS, credentials: true }))
   app.use(morgan('dev'))
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
