@@ -5,5 +5,6 @@ export enum ModelNames {
   Question = 'Question',
   Response = 'Response',
   Leaderboard = 'Leaderboard',
+  Participant = 'Participant',
   Log = 'Log',
 }
