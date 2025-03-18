@@ -1,6 +1,8 @@
 version: '3.8'
 services:
   web:
+    labels:
+      - "environment=development"
     build: .
     volumes:
       - .:/usr/app/
@@ -14,6 +16,8 @@ services:
     networks:
       - quizio
   mongo:
+    labels:
+      - "environment=development"
     image: mongo
     ports:
       - 27017:27017
