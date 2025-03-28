@@ -14,7 +14,7 @@ const participantSchema = new Schema<IParticipant>({
   },
   submitted: {
     type: Boolean,
-    default: false
+    default: false,
   },
   registrationData: {
     customFields: [
@@ -25,7 +25,7 @@ const participantSchema = new Schema<IParticipant>({
         },
         value: {
           type: String,
-          required: false, //TODO: Do sanity checking for required fields 
+          required: false, //TODO: Do sanity checking for required fields
         },
       },
     ],

@@ -23,7 +23,10 @@ const getDashBoard = async (req: getDashBoardRequest, res: Response) => {
     let attemptedQuizzes = 0
     const quizDetails = await Promise.all(
       quizzes.map(async (quiz) => {
-        const participant = await ParticipantModel.findOne({ userId: user.userId, quizId: quiz._id })
+        const participant = await ParticipantModel.findOne({
+          userId: user.userId,
+          quizId: quiz._id,
+        })
 
         if (participant?.submitted) {
           attemptedQuizzes += 1
@@ -43,7 +46,7 @@ const getDashBoard = async (req: getDashBoardRequest, res: Response) => {
           registered: Boolean(participant),
           submitted: participant?.submitted || false,
         }
-      })
+      }),
     )
 
     const userDetails = {

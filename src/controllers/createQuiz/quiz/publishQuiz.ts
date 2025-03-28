@@ -52,7 +52,7 @@ const endQuizScheduler = async (quizId: Types.ObjectId, endDateTimestamp: Date) 
         return
       }
       logger.debug('🔔 Quiz ' + quizId + ' scheduled to end at ' + endDateTimestamp + ' ended')
-      await ParticipantModel.updateMany({ quizId }, {submitted: true})
+      await ParticipantModel.updateMany({ quizId }, { submitted: true })
     } catch (err) {
       logger.error('🔴 ERROR in ending Quiz ' + quizId)
       logger.error(err)

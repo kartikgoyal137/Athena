@@ -13,5 +13,3 @@ export interface IParticipant {
   }
   startTime: number
 }
-
-

@@ -26,7 +26,7 @@ const startQuiz = async (req: startQuizRequest, res: Response) => {
 
   try {
     const quiz = await QuizModel.findById(quizId)
-    
+
     if (!quiz || !quiz.isPublished) {
       return sendFailureResponse({
         res,
@@ -37,7 +37,7 @@ const startQuiz = async (req: startQuizRequest, res: Response) => {
     }
     const participant = await isParticipant(user.userId, quiz._id)
 
-    if(!participant){
+    if (!participant) {
       return sendFailureResponse({
         res,
         error: new Error('User not registered for this quiz'),
@@ -45,7 +45,7 @@ const startQuiz = async (req: startQuizRequest, res: Response) => {
         errorCode: 403,
       })
     }
-    
+
     if (quiz.quizMetadata?.accessCode !== accessCode) {
       return res.status(401).json({
         success: false,
@@ -68,11 +68,12 @@ const startQuiz = async (req: startQuizRequest, res: Response) => {
         })
 
       case QuizUserStatus.autoSubmitQuiz:
-        await ParticipantModel.updateOne({ quizId: quiz._id, userId: user.userId },
+        await ParticipantModel.updateOne(
+          { quizId: quiz._id, userId: user.userId },
           {
-            $set: { submitted: true }
-          }
-        );
+            $set: { submitted: true },
+          },
+        )
         return res.status(200).json({ message: 'Quiz auto submitted' })
 
       case QuizUserStatus.submitted:

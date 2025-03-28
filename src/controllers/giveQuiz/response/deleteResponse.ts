@@ -26,10 +26,8 @@ const deleteResponse = async (req: deleteResponseRequest, res: Response) => {
     await response.delete()
 
     //Decrement the totalAttempts of the question
-    await QuestionModel.findByIdAndUpdate(questionId, 
-      { $inc: { totalAttempts: -1 } 
-    })
-    
+    await QuestionModel.findByIdAndUpdate(questionId, { $inc: { totalAttempts: -1 } })
+
     res.status(200).json({ message: 'Response deleted' })
   } catch (error: unknown) {
     sendFailureResponse({

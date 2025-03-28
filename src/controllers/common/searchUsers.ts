@@ -43,7 +43,6 @@ const searchUsers = async (req: searchUserRequest, res: Response) => {
   return res.status(404).json({
     message: 'No users found',
   })
-
 }
 
 export default searchUsers

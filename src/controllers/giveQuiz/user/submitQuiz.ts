@@ -39,9 +39,12 @@ const submitQuiz = async (req: submitQuizRequest, res: Response) => {
         arrayFilters: [{ 'elem.userId': user.userId }],
       },
     )
-    await ParticipantModel.updateOne({ quizId: quiz._id, userId: user.userId }, {
-      $set: { submitted: true }
-    })
+    await ParticipantModel.updateOne(
+      { quizId: quiz._id, userId: user.userId },
+      {
+        $set: { submitted: true },
+      },
+    )
 
     return res.status(200).json({
       success: true,

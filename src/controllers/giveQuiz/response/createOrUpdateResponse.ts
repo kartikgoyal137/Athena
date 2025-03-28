@@ -54,11 +54,12 @@ const createOrUpdateResponse = async (req: createOrUpdateResponseRequest, res: R
     }
 
     if (currentStatus === QuizUserStatus.autoSubmitQuiz) {
-      await ParticipantModel.updateOne({ quizId: quiz._id, userId: user.userId },
+      await ParticipantModel.updateOne(
+        { quizId: quiz._id, userId: user.userId },
         {
-          $set: { submitted: true }
-        }
-      );
+          $set: { submitted: true },
+        },
+      )
       return res.status(200).json({ message: 'Quiz auto submitted' })
     }
 

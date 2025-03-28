@@ -1,7 +1,9 @@
 # Athena
+
 Quizio Backend that makes sense
 
-### Tools 
+### Tools
+
 - [x] [NodeJS] v14.17.6 (https://nodejs.org/en/)
 - [x] [Yarn](https://yarnpkg.com/en/)
 - [x] [Eslint](https://eslint.org/)

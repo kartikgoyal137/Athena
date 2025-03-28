@@ -83,10 +83,7 @@ const getCheckingDashboard = async (req: getDashboardRequest, res: Response) => 
           const name = user.personalDetails?.name?.toLowerCase() || ''
           const phoneNumber = user.personalDetails?.phoneNo || ''
 
-          if (
-            !searchQuery ||
-            prefixSearch(searchQuery, name, phoneNumber)
-          ) {
+          if (!searchQuery || prefixSearch(searchQuery, name, phoneNumber)) {
             users.push({
               userId: user._id,
               name: user.personalDetails?.name,
@@ -103,9 +100,9 @@ const getCheckingDashboard = async (req: getDashboardRequest, res: Response) => 
       }
     }
     if (leaderboard.length > 0) {
-      leaderboard[0].participants = searchedLeaderboard;
+      leaderboard[0].participants = searchedLeaderboard
     }
-    const participantsCount = await ParticipantModel.countDocuments({ quizId });
+    const participantsCount = await ParticipantModel.countDocuments({ quizId })
     return res.status(200).json({
       admin: quiz.admin,
       scheduled: quiz.quizMetadata?.startDateTimestamp,

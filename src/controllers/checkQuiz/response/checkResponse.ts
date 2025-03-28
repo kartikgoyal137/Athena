@@ -38,7 +38,6 @@ const checkResponse = async (req: checkResponseRequest, res: Response) => {
         $inc: { checkedAttempts: 1 },
       })
     }
-    
 
     return res.status(200).json({
       message: 'Response checked',

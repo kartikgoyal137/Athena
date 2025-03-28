@@ -3,7 +3,7 @@ import { Types } from 'mongoose'
 export interface ILeaderboard {
   _id?: Types.ObjectId
   quizId: Types.ObjectId
-  sectionIndex:number
+  sectionIndex: number
   participants: {
     userId: Types.ObjectId
     marks: number

@@ -27,7 +27,6 @@ const getStartTime = async (req: getStartTimeRequest, res: Response) => {
   try {
     const quiz = await QuizModel.findById(quizId)
 
-
     if (!quiz || !quiz.isPublished) {
       return sendFailureResponse({
         res,
@@ -43,24 +42,24 @@ const getStartTime = async (req: getStartTimeRequest, res: Response) => {
         res,
         error: new Error('User is not registered for the quiz'),
         messageToSend: 'User is not registered for the quiz',
-        errorCode: 403
+        errorCode: 403,
       })
     }
 
-    const currentStatus = checkQuizUserStatus(quiz, participant);
-    const quizEndTime = quiz?.quizMetadata?.endDateTimestamp as any;
-    const quizDuration = quiz?.quizMetadata?.duration as any;
-    const quizDurationInMs = quizDuration * 60 * 1000;
-    const currentTime = new Date().getTime();
+    const currentStatus = checkQuizUserStatus(quiz, participant)
+    const quizEndTime = quiz?.quizMetadata?.endDateTimestamp as any
+    const quizDuration = quiz?.quizMetadata?.duration as any
+    const quizDurationInMs = quizDuration * 60 * 1000
+    const currentTime = new Date().getTime()
 
     const calculateUserLeftTime = (startTime: number) => {
-      const timeUntilQuizEnd = quizEndTime - currentTime;
-      const timeUntilUserEnd = startTime + quizDurationInMs - currentTime;
-      return Math.min(timeUntilQuizEnd, timeUntilUserEnd);
-    };
+      const timeUntilQuizEnd = quizEndTime - currentTime
+      const timeUntilUserEnd = startTime + quizDurationInMs - currentTime
+      return Math.min(timeUntilQuizEnd, timeUntilUserEnd)
+    }
 
     if (currentStatus === QuizUserStatus.userIsGivingQuiz) {
-      const userLeftTime = calculateUserLeftTime(participant.startTime);
+      const userLeftTime = calculateUserLeftTime(participant.startTime)
       return res.status(200).json({
         success: false,
         message: 'User is already giving the quiz',
@@ -68,11 +67,14 @@ const getStartTime = async (req: getStartTimeRequest, res: Response) => {
       })
     } else if (currentStatus === QuizUserStatus.userNotStarted) {
       const quizStartTime = new Date().getTime()
-      await ParticipantModel.updateOne({ quizId: quiz._id, userId: participant.userId }, {
-        $set: {
-          startTime: quizStartTime
-        }
-      })
+      await ParticipantModel.updateOne(
+        { quizId: quiz._id, userId: participant.userId },
+        {
+          $set: {
+            startTime: quizStartTime,
+          },
+        },
+      )
       const userLeftTime = calculateUserLeftTime(quizStartTime)
       return res.status(200).json({
         success: true,

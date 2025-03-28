@@ -20,20 +20,29 @@ const getUserProfile = async (req: getDashBoardRequest, res: Response) => {
       $or: [{ admin: user.userId }, { managers: user.userId }],
     })
 
-    const attemptedQuizzes = await ParticipantModel.find({ userId: user.userId, submitted: true }).populate({
+    const attemptedQuizzes = await ParticipantModel.find({
+      userId: user.userId,
+      submitted: true,
+    }).populate({
       path: 'quizId',
       select: 'admin quizMetadata resultsPublished bannerImage',
       populate: {
         path: 'admin',
-        select: 'personalDetails.name'
-      }
-    });
+        select: 'personalDetails.name',
+      },
+    })
 
     const quizDetails = attemptedQuizzes.map(async (participation) => {
-      const leaderboard = await LeaderboardModel.findOne({ quizId: participation.quizId._id, sectionIndex: null })
-      const rankIndex = leaderboard?.participants.findIndex((p) => p.userId.equals(user.userId)) ?? -1;
-      const rank = (rankIndex + 1) || null;
-      const totalParticipants = await ParticipantModel.countDocuments({ quizId: participation.quizId._id });
+      const leaderboard = await LeaderboardModel.findOne({
+        quizId: participation.quizId._id,
+        sectionIndex: null,
+      })
+      const rankIndex =
+        leaderboard?.participants.findIndex((p) => p.userId.equals(user.userId)) ?? -1
+      const rank = rankIndex + 1 || null
+      const totalParticipants = await ParticipantModel.countDocuments({
+        quizId: participation.quizId._id,
+      })
       return {
         _id: participation.quizId._id,
         creator: participation.quizId.admin.personalDetails?.name,
@@ -44,7 +53,7 @@ const getUserProfile = async (req: getDashBoardRequest, res: Response) => {
         bannerImage: participation.quizId.quizMetadata?.bannerImage,
         resultsPublished: participation.quizId.resultsPublished,
         totalParticipants: totalParticipants,
-        rank: rank
+        rank: rank,
       }
     })
     const userDocument = await UserModel.findById(user.userId)

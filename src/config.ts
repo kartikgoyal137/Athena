@@ -1,12 +1,10 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import dotenv from 'dotenv'
+dotenv.config()
 
 export const isProduction = process.env.NODE_ENV === 'production'
 
 // MongoDB URI
-export const MONGOURI = isProduction 
-  ? process.env.MONGOURI_PROD 
-  : process.env.MONGOURI_DEV
+export const MONGOURI = isProduction ? process.env.MONGOURI_PROD : process.env.MONGOURI_DEV
 
 // Frontend URL
 export const FRONTEND_URLS = isProduction
