@@ -1,4 +1,4 @@
-import userModel from '@models/user/userModel'
+import UserModel from '@models/user/userModel'
 import sendFailureResponse from '@utils/failureResponse'
 import sendInvalidInputResponse from '@utils/invalidInputResponse'
 import { Request, Response } from 'express'
@@ -30,14 +30,14 @@ const onboard = async (req: onboardRequest, res: Response) => {
   }
 
   // Check if user has already onboarded
-  const userData = await userModel.findById(user.userId)
+  const userData = await UserModel.findById(user.userId)
   if (userData?.onboardingComplete) {
     return res.status(200).send('success')
   }
 
   try {
     // Update user details
-    await userModel.findByIdAndUpdate(
+    await UserModel.findByIdAndUpdate(
       user.userId,
       {
         personalDetails: personalDetails,

@@ -6,6 +6,7 @@ import { scheduleJob } from 'node-schedule'
 import logger from '@utils/logger'
 import { JwtPayload } from 'types'
 import { Types } from 'mongoose'
+import ParticipantModel from '@models/participant/participantModel'
 
 interface publishQuizRequest extends Request {
   body: {
@@ -17,7 +18,7 @@ interface publishQuizRequest extends Request {
 }
 // TODO: check that the quiz is perfect in terms that all data is present
 const startQuizScheduler = async (quizId: Types.ObjectId, startDateTimestamp: Date) => {
-  const job = scheduleJob(startDateTimestamp, async () => {
+  scheduleJob(startDateTimestamp, async () => {
     try {
       // set isAcceptingAnswers to true
       const startedQuiz = await QuizModel.findByIdAndUpdate(
@@ -38,7 +39,7 @@ const startQuizScheduler = async (quizId: Types.ObjectId, startDateTimestamp: Da
 }
 
 const endQuizScheduler = async (quizId: Types.ObjectId, endDateTimestamp: Date) => {
-  const job = scheduleJob(endDateTimestamp, async () => {
+  scheduleJob(endDateTimestamp, async () => {
     try {
       // set isAcceptingAnswers to false
       const endQuiz = await QuizModel.findByIdAndUpdate(
@@ -51,6 +52,7 @@ const endQuizScheduler = async (quizId: Types.ObjectId, endDateTimestamp: Date) 
         return
       }
       logger.debug('🔔 Quiz ' + quizId + ' scheduled to end at ' + endDateTimestamp + ' ended')
+      await ParticipantModel.updateMany({ quizId }, {submitted: true})
     } catch (err) {
       logger.error('🔴 ERROR in ending Quiz ' + quizId)
       logger.error(err)

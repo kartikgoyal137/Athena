@@ -1,4 +1,4 @@
-import userModel from '@models/user/userModel'
+import UserModel from '@models/user/userModel'
 import sendFailureResponse from '@utils/failureResponse'
 import sendInvalidInputResponse from '@utils/invalidInputResponse'
 import { Request, Response } from 'express'
@@ -29,11 +29,11 @@ const updateUser = async (req: onboardRequest, res: Response) => {
   }
 
   try {
-    const exists = await userModel.findById(user.userId)
+    const exists = await UserModel.findById(user.userId)
     if (exists) {
       try {
         // Update user details
-        const updatedUser = await userModel.findByIdAndUpdate(
+        const updatedUser = await UserModel.findByIdAndUpdate(
           user.userId,
           {
             personalDetails: personalDetails,

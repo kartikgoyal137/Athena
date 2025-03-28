@@ -14,7 +14,6 @@ const participantSchema = new Schema<IParticipant>({
   },
   submitted: {
     type: Boolean,
-    required: true,
     default: false
   },
   registrationData: {

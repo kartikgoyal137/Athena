@@ -1,9 +1,10 @@
 import { Date, Types } from 'mongoose'
 import { IQuestion } from './question'
+import { IUser } from './user'
 
 export interface IQuiz {
   _id?: Types.ObjectId
-  admin: Types.ObjectId
+  admin: IUser
   managers?: Types.ObjectId[]
   isPublished: boolean
   isAcceptingAnswers: boolean

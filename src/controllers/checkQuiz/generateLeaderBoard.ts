@@ -4,8 +4,9 @@ import sendFailureResponse from '@utils/failureResponse';
 import getQuiz from '@utils/getQuiz';
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
-import { ResponseStatus } from 'types';
+import { IQuestion, ResponseStatus } from 'types';
 import sendInvalidInputResponse from '@utils/invalidInputResponse';
+import ParticipantModel from '@models/participant/participantModel';
 interface generateLeaderBoardRequest extends Request {
   params: {
     quizId: string;
@@ -30,25 +31,23 @@ const generateLeaderBoard = async (req: generateLeaderBoardRequest, res: Respons
   try {
     const quiz = await getQuiz(quizId);
     if (!quiz || !quiz?.sections) {
-        return sendInvalidInputResponse(res);
+      return sendInvalidInputResponse(res);
     }
-    
-    const participants: Participant[] = [];
 
-    let Questions: any[] = [];
+    const entries: Participant[] = [];
 
-    if (sectionIndex != null) {
-      Questions = quiz.sections[sectionIndex]?.questions || [];
-    } else {
-      Questions = quiz.sections.flatMap((section) => section.questions);
-    }
+    const questions: IQuestion[] = sectionIndex != null
+      ? quiz.sections[sectionIndex]?.questions ?? []
+      : quiz.sections.flatMap((section) => section.questions ?? []).filter(Boolean);
+
+    const participants = await ParticipantModel.find({ quizId })
 
     await Promise.all(
-      quiz?.participants?.map(async (participant) => {
+      participants?.map(async (participant) => {
         const responses = await ResponseModel.find({
           userId: participant.userId,
           quizId: quizId,
-          questionId: { $in: Questions.filter((q) => q !== undefined).map((q) => q._id) },
+          questionId: { $in: questions.filter((q) => q !== undefined).map((q) => q._id) },
         });
         let score = 0;
         let questionsAttempted = 0;
@@ -70,26 +69,26 @@ const generateLeaderBoard = async (req: generateLeaderBoardRequest, res: Respons
             questionsChecked: questionsChecked,
           };
 
-          participants.push(leaderboardEntry);
+          entries.push(leaderboardEntry);
         }
       }) as Promise<void>[],
     );
 
-    const sortedParticipants = participants.sort((a, b) => b.marks - a.marks);
+    const sortedEntries = entries.sort((a, b) => b.marks - a.marks);
 
     await LeaderboardModel.findOneAndUpdate(
       { quizId: quizId, sectionIndex: sectionIndex },
       {
         quizId: quizId,
         sectionIndex: sectionIndex,
-        participants: sortedParticipants,
+        participants: sortedEntries,
       },
       { upsert: true },
     );
 
     return res.status(200).json({
       message: 'Leaderboard generated successfully',
-      leaderboard: sortedParticipants,
+      leaderboard: sortedEntries,
     });
   } catch (error: unknown) {
     return sendFailureResponse({

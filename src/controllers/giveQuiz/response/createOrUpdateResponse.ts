@@ -4,9 +4,8 @@ import { JwtPayload, IResponse, QuizUserStatus } from 'types'
 import sendFailureResponse from '@utils/failureResponse'
 import sendInvalidInputResponse from '@utils/invalidInputResponse'
 import QuestionModel from '@models/question/questionModel'
-import QuizModel from '@models/quiz/quizModel'
+import ParticipantModel from '@models/participant/participantModel'
 import getQuiz from '@utils/getQuiz'
-import { Types } from 'mongoose'
 import isParticipant from '@utils/isParticipant'
 import { checkQuizUserStatus, isQuizUserStatusValid } from '@utils/checkQuizUserStatus'
 
@@ -39,9 +38,8 @@ const createOrUpdateResponse = async (req: createOrUpdateResponseRequest, res: R
       return sendInvalidInputResponse(res)
     }
 
-    const userObjectId = new Types.ObjectId(user.userId)
-    const dbUser = isParticipant(userObjectId, quiz?.participants)
-    if (!dbUser) {
+    const participant = await isParticipant(user.userId, quiz._id)
+    if (!participant) {
       return sendFailureResponse({
         res,
         error: 'Error fetching quiz, Invalid User',
@@ -50,18 +48,17 @@ const createOrUpdateResponse = async (req: createOrUpdateResponseRequest, res: R
       })
     }
 
-    const currentStatus: QuizUserStatus = checkQuizUserStatus(quiz, dbUser)
+    const currentStatus: QuizUserStatus = checkQuizUserStatus(quiz, participant)
     if (!isQuizUserStatusValid(currentStatus, res)) {
       return
     }
 
     if (currentStatus === QuizUserStatus.autoSubmitQuiz) {
-      await QuizModel.findByIdAndUpdate(
-        quiz._id,
-        { $set: { 'participants.$[participant].submitted': true } },
-        { arrayFilters: [{ 'participant.userId': dbUser.userId }] },
-      )
-      console.log('Auto submit quiz')
+      await ParticipantModel.updateOne({ quizId: quiz._id, userId: user.userId },
+        {
+          $set: { submitted: true }
+        }
+      );
       return res.status(200).json({ message: 'Quiz auto submitted' })
     }
 

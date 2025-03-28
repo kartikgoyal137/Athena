@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
 import sendFailureResponse from '@utils/failureResponse'
-import QuestionModel from '@models/question/questionModel'
 import { QuestionTypes, ResponseStatus } from 'types'
 import QuizModel from '@models/quiz/quizModel'
 import ResponseModel from '@models/response/responseModel'

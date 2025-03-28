@@ -31,7 +31,6 @@ const createLog = async (req: getLogsRequest, res: Response) => {
       log,
     })
   } catch (error: unknown) {
-    console.log(error)
     return res.status(500).json({
       message: 'Error in creating log',
       error,

@@ -3,6 +3,7 @@ import QuizModel from '@models/quiz/quizModel'
 import { JwtPayload } from 'types'
 import sendInvalidInputResponse from '@utils/invalidInputResponse'
 import sendFailureResponse from '@utils/failureResponse'
+import ParticipantModel from '@models/participant/participantModel'
 
 interface submitQuizRequest extends Request {
   body: {
@@ -38,6 +39,9 @@ const submitQuiz = async (req: submitQuizRequest, res: Response) => {
         arrayFilters: [{ 'elem.userId': user.userId }],
       },
     )
+    await ParticipantModel.updateOne({ quizId: quiz._id, userId: user.userId }, {
+      $set: { submitted: true }
+    })
 
     return res.status(200).json({
       success: true,

@@ -5,8 +5,8 @@ import QuizModel from '@models/quiz/quizModel'
 import ResponseModel from '@models/response/responseModel'
 import { JwtPayload, ResponseStatus, QuizUserStatus } from 'types'
 import isParticipant from '@utils/isParticipant'
-import { Types } from 'mongoose'
 import { checkQuizUserStatus, isQuizUserStatusValid } from '@utils/checkQuizUserStatus'
+import ParticipantModel from '@models/participant/participantModel'
 
 interface getQuizRequest extends Request {
   params: {
@@ -38,9 +38,8 @@ const getQuiz = async (req: getQuizRequest, res: Response) => {
         sections: quiz?.sections,
       }
 
-      const userObjectId = new Types.ObjectId(user.userId)
-      const dbUser = isParticipant(userObjectId, quiz?.participants)
-      if (!dbUser) {
+      const participant = await isParticipant(user.userId, quiz._id)
+      if (!participant) {
         return sendFailureResponse({
           res,
           error: 'Error fetching quiz, Invalid User',
@@ -49,18 +48,17 @@ const getQuiz = async (req: getQuizRequest, res: Response) => {
         })
       }
 
-      const currentStatus = checkQuizUserStatus(quiz, dbUser)
+      const currentStatus = checkQuizUserStatus(quiz, participant)
       if (!isQuizUserStatusValid(currentStatus, res)) {
         return
       }
 
       if (currentStatus === QuizUserStatus.autoSubmitQuiz) {
-        await QuizModel.findByIdAndUpdate(
-          quiz._id,
-          { $set: { 'participants.$[participant].submitted': true } },
-          { arrayFilters: [{ 'participant.userId': dbUser.userId }] },
-        )
-        console.log('Auto submit quiz')
+        await ParticipantModel.updateOne({ quizId: quiz._id, userId: user.userId },
+          {
+            $set: { submitted: true }
+          }
+        );
         return res.status(200).json({ message: 'Quiz auto submitted' })
       }
 

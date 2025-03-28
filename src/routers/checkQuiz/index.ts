@@ -18,4 +18,6 @@ router.patch('/autocheck/:quizId', isOnboard, isQuizAdmin, checkQuizController.a
 router.patch('/leaderboard/:quizId/', isOnboard, isQuizAdmin, checkQuizController.generateLeaderBoard)
 router.patch('/leaderboard/:quizId/:sectionIndex', isOnboard, isQuizAdmin, checkQuizController.generateLeaderBoard)
 
+router.patch('/publish', isOnboard, isQuizAdmin, checkQuizController.publishResults)
+
 export default router

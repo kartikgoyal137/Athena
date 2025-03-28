@@ -1,8 +1,9 @@
 import { Types } from 'mongoose'
+import { IQuiz } from './quiz'
 
 export interface IParticipant {
   userId: Types.ObjectId
-  quizId: Types.ObjectId
+  quizId: IQuiz
   submitted: boolean
   registrationData: {
     customFields: {

@@ -1,4 +1,4 @@
-import userModel from '@models/user/userModel'
+import UserModel from '@models/user/userModel'
 import { Request, Response } from 'express'
 import { IUser } from 'types'
 
@@ -31,7 +31,7 @@ const searchUsers = async (req: searchUserRequest, res: Response) => {
     findQuery = { _id: { $in: objIds } }
   }
 
-  const users: IUser[] = await userModel.find(findQuery)
+  const users: IUser[] = await UserModel.find(findQuery)
 
   if (users && users.length > 0) {
     return res.status(200).json({

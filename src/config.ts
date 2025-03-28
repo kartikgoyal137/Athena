@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-const isProduction = process.env.NODE_ENV === 'production'
+export const isProduction = process.env.NODE_ENV === 'production'
 
 // MongoDB URI
 export const MONGOURI = isProduction 
@@ -30,3 +30,6 @@ export const GOOGLE_REDIRECT_URL = isProduction
 export const GITHUB_TOKEN_URL = isProduction
   ? process.env.GITHUB_TOKEN_URL_PROD
   : process.env.GITHUB_TOKEN_URL_DEV
+
+export const GITHUB_EMAIL_URL = process.env.GITHUB_EMAIL_URL ?? 'https://api.github.com/user/emails'
+export const GITHUB_USER_URL = process.env.GITHUB_USER_URL ?? 'https://api.github.com/user'

@@ -1,5 +1,5 @@
 import { Response } from 'express'
-import { IQuiz, IParticipant, QuizUserStatus } from '../types/quiz'
+import { IQuiz, QuizUserStatus, IParticipant } from 'types'
 import sendFailureResponse from './failureResponse'
 
 const checkQuizUserStatus = (quiz: IQuiz, user: IParticipant): QuizUserStatus => {

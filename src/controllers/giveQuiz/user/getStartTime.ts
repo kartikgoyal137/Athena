@@ -1,10 +1,11 @@
 import { Response, Request } from 'express'
 import QuizModel from '@models/quiz/quizModel'
-import { IParticipant, IQuiz, JwtPayload, QuizUserStatus } from 'types'
+import { JwtPayload, QuizUserStatus } from 'types'
 import sendInvalidInputResponse from '@utils/invalidInputResponse'
 import isParticipant from '@utils/isParticipant'
 import { checkQuizUserStatus } from '@utils/checkQuizUserStatus'
 import sendFailureResponse from '@utils/failureResponse'
+import ParticipantModel from '@models/participant/participantModel'
 
 interface getStartTimeRequest extends Request {
   body: {
@@ -26,23 +27,32 @@ const getStartTime = async (req: getStartTimeRequest, res: Response) => {
   try {
     const quiz = await QuizModel.findById(quizId)
 
-    const dbUser = isParticipant(user.userId, quiz?.participants)
 
-    if (!quiz || !quiz.isPublished || !dbUser) {
+    if (!quiz || !quiz.isPublished) {
       return sendFailureResponse({
         res,
-        error: new Error('User not registered for this quiz'),
-        messageToSend: 'User not registered for this quiz',
-        errorCode: 400,
+        error: new Error('Quiz does not exist'),
+        messageToSend: 'Quiz does not exist',
+        errorCode: 404,
+      })
+    }
+    const participant = await isParticipant(user.userId, quiz._id)
+
+    if (!participant) {
+      return sendFailureResponse({
+        res,
+        error: new Error('User is not registered for the quiz'),
+        messageToSend: 'User is not registered for the quiz',
+        errorCode: 403
       })
     }
 
-    const currentStatus = checkQuizUserStatus(quiz as IQuiz, dbUser as IParticipant);
+    const currentStatus = checkQuizUserStatus(quiz, participant);
     const quizEndTime = quiz?.quizMetadata?.endDateTimestamp as any;
     const quizDuration = quiz?.quizMetadata?.duration as any;
     const quizDurationInMs = quizDuration * 60 * 1000;
     const currentTime = new Date().getTime();
-    
+
     const calculateUserLeftTime = (startTime: number) => {
       const timeUntilQuizEnd = quizEndTime - currentTime;
       const timeUntilUserEnd = startTime + quizDurationInMs - currentTime;
@@ -50,7 +60,7 @@ const getStartTime = async (req: getStartTimeRequest, res: Response) => {
     };
 
     if (currentStatus === QuizUserStatus.userIsGivingQuiz) {
-      const userLeftTime = calculateUserLeftTime(dbUser.startTime);
+      const userLeftTime = calculateUserLeftTime(participant.startTime);
       return res.status(200).json({
         success: false,
         message: 'User is already giving the quiz',
@@ -58,11 +68,11 @@ const getStartTime = async (req: getStartTimeRequest, res: Response) => {
       })
     } else if (currentStatus === QuizUserStatus.userNotStarted) {
       const quizStartTime = new Date().getTime()
-      await QuizModel.findByIdAndUpdate(
-        quiz._id,
-        { $set: { 'participants.$[participant].startTime': quizStartTime } },
-        { arrayFilters: [{ 'participant.userId': dbUser.userId }] },
-      )
+      await ParticipantModel.updateOne({ quizId: quiz._id, userId: participant.userId }, {
+        $set: {
+          startTime: quizStartTime
+        }
+      })
       const userLeftTime = calculateUserLeftTime(quizStartTime)
       return res.status(200).json({
         success: true,

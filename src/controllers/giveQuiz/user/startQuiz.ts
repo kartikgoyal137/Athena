@@ -1,10 +1,11 @@
 import { Response, Request } from 'express'
 import QuizModel from '@models/quiz/quizModel'
-import { IParticipant, IQuiz, JwtPayload, QuizUserStatus } from 'types'
+import { JwtPayload, QuizUserStatus } from 'types'
 import sendInvalidInputResponse from '@utils/invalidInputResponse'
 import isParticipant from '@utils/isParticipant'
 import { checkQuizUserStatus } from '@utils/checkQuizUserStatus'
 import sendFailureResponse from '@utils/failureResponse'
+import ParticipantModel from '@models/participant/participantModel'
 
 interface startQuizRequest extends Request {
   body: {
@@ -25,14 +26,23 @@ const startQuiz = async (req: startQuizRequest, res: Response) => {
 
   try {
     const quiz = await QuizModel.findById(quizId)
-    const dbUser = isParticipant(user.userId, quiz?.participants)
     
-    if (!quiz || !quiz.isPublished || !dbUser) {
+    if (!quiz || !quiz.isPublished) {
+      return sendFailureResponse({
+        res,
+        error: new Error('Quiz does not exist'),
+        messageToSend: 'Quiz does not exist',
+        errorCode: 404,
+      })
+    }
+    const participant = await isParticipant(user.userId, quiz._id)
+
+    if(!participant){
       return sendFailureResponse({
         res,
         error: new Error('User not registered for this quiz'),
         messageToSend: 'User not registered for this quiz',
-        errorCode: 400,
+        errorCode: 403,
       })
     }
     
@@ -42,7 +52,7 @@ const startQuiz = async (req: startQuizRequest, res: Response) => {
         message: 'Invalid access code',
       })
     }
-    const currentStatus = checkQuizUserStatus(quiz as IQuiz, dbUser as IParticipant)
+    const currentStatus = checkQuizUserStatus(quiz, participant)
 
     switch (currentStatus) {
       case QuizUserStatus.userIsGivingQuiz:
@@ -58,12 +68,11 @@ const startQuiz = async (req: startQuizRequest, res: Response) => {
         })
 
       case QuizUserStatus.autoSubmitQuiz:
-        await QuizModel.findByIdAndUpdate(
-          quizId,
-          { $set: { 'participants.$[participant].submitted': true } },
-          { arrayFilters: [{ 'participant.userId': dbUser.userId }] },
-        )
-        console.log('Auto submit quiz')
+        await ParticipantModel.updateOne({ quizId: quiz._id, userId: user.userId },
+          {
+            $set: { submitted: true }
+          }
+        );
         return res.status(200).json({ message: 'Quiz auto submitted' })
 
       case QuizUserStatus.submitted:
@@ -83,7 +92,6 @@ const startQuiz = async (req: startQuizRequest, res: Response) => {
         })
     }
   } catch (error) {
-    console.log(error)
     return res.status(500).json({
       success: false,
       message: 'Internal server error',
