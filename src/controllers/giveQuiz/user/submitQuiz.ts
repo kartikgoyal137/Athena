@@ -28,17 +28,7 @@ const submitQuiz = async (req: submitQuizRequest, res: Response) => {
     if (!quiz || !quiz.isPublished) {
       return sendInvalidInputResponse(res)
     }
-    await QuizModel.findByIdAndUpdate(
-      quizId,
-      {
-        $set: {
-          'participants.$[elem].submitted': true,
-        },
-      },
-      {
-        arrayFilters: [{ 'elem.userId': user.userId }],
-      },
-    )
+
     await ParticipantModel.updateOne(
       { quizId: quiz._id, userId: user.userId },
       {
