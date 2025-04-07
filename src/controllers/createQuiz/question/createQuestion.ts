@@ -28,7 +28,7 @@ const createQuestion = async (req: createQuestionRequest, res: Response) => {
     const newQuestion = new QuestionModel({
       type: QuestionTypes.SUB,
       description: '',
-      checkersNotes : '',
+      checkersNotes: '',
       options: [],
       maxMarks: 0,
       autoCheck: false,

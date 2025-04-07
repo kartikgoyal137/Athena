@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import QuizModel from '@models/quiz/quizModel'
+import ParticipantModel from '@models/participant/participantModel'
 import sendInvalidInputResponse from '@utils/invalidInputResponse'
 import sendFailureResponse from '@utils/failureResponse'
 import LeaderboardModel from '@models/leaderboard/leaderboardModel'
@@ -43,7 +44,7 @@ const getCheckingDashboard = async (req: getDashboardRequest, res: Response) => 
   const searchQuery = req.query.search as string | undefined // Adjusted to match the query parameter name 'search'
 
   const users: UserDetails[] = []
-  const searchedLeaderboard: any[] = []
+  const searchedLeaderboard = []
 
   try {
     const quiz = await QuizModel.findById(quizId).populate({
@@ -82,10 +83,7 @@ const getCheckingDashboard = async (req: getDashboardRequest, res: Response) => 
           const name = user.personalDetails?.name?.toLowerCase() || ''
           const phoneNumber = user.personalDetails?.phoneNo || ''
 
-          if (
-            !searchQuery ||
-            prefixSearch(searchQuery, name, phoneNumber)
-          ) {
+          if (!searchQuery || prefixSearch(searchQuery, name, phoneNumber)) {
             users.push({
               userId: user._id,
               name: user.personalDetails?.name,
@@ -100,15 +98,16 @@ const getCheckingDashboard = async (req: getDashboardRequest, res: Response) => 
           }
         }
       }
-    }   
-    if (leaderboard.length > 0) {
-      leaderboard[0].participants = searchedLeaderboard;
     }
+    if (leaderboard.length > 0) {
+      leaderboard[0].participants = searchedLeaderboard
+    }
+    const participantsCount = await ParticipantModel.countDocuments({ quizId })
     return res.status(200).json({
       admin: quiz.admin,
       scheduled: quiz.quizMetadata?.startDateTimestamp,
       sections: quiz.sections,
-      participants: quiz?.participants?.length,
+      participants: participantsCount,
       checksCompleted: checksCompleted,
       totalAttempts: totalAttempts,
       leaderboard: leaderboard,

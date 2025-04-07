@@ -1,7 +1,7 @@
-import mongoose from "mongoose"
-import { ModelNames, ILeaderboard } from "types"
-import leaderboardSchema from "./leaderboardSchema"
+import mongoose from 'mongoose'
+import { ModelNames, ILeaderboard } from 'types'
+import leaderboardSchema from './leaderboardSchema'
 
-const leaderboardModel = mongoose.model<ILeaderboard>(ModelNames.Leaderboard, leaderboardSchema)
+const LeaderboardModel = mongoose.model<ILeaderboard>(ModelNames.Leaderboard, leaderboardSchema)
 
-export default leaderboardModel
+export default LeaderboardModel

@@ -1,7 +1,7 @@
 import { verifyToken } from '@utils/token'
 import { Request, Response, NextFunction } from 'express'
 import sendUnauthorizedResponse from '@utils/unauthorisedResponse'
-import userModel from '@models/user/userModel'
+import UserModel from '@models/user/userModel'
 
 const isOnboard = async (req: Request, res: Response, next: NextFunction) => {
   // check for token
@@ -16,7 +16,7 @@ const isOnboard = async (req: Request, res: Response, next: NextFunction) => {
       return sendUnauthorizedResponse(res)
     }
     req.body.user = user
-    const userData = await userModel.findById(req.body.user.userId)
+    const userData = await UserModel.findById(req.body.user.userId)
 
     // if not onboarded, redirect to onboard page
     if (!userData?.onboardingComplete) {

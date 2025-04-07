@@ -13,37 +13,6 @@ const quizSchema = new Schema<IQuiz>({
       ref: ModelNames.User,
     },
   ],
-  participants: [
-    {
-      userId: {
-        type: Schema.Types.ObjectId,
-        ref: ModelNames.User,
-      },
-      submitted: {
-        type: Boolean,
-        default: false,
-      },
-      registrationData: {
-        customFields: [
-          {
-            name: {
-              type: String,
-              required: true,
-            },
-            value: {
-              type: String,
-              required: false, //TODO: Do sanity checking for required fields 
-            },
-          },
-        ],
-      },
-
-      startTime: {
-        type: Number,
-        default: 0,
-      },
-    },
-  ],
   isPublished: {
     type: Boolean,
     required: true,

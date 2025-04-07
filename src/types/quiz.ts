@@ -1,23 +1,11 @@
 import { Date, Types } from 'mongoose'
 import { IQuestion } from './question'
-
-export interface IParticipant {
-  userId: Types.ObjectId
-  submitted: boolean
-  registrationData: {
-    customFields: {
-      name: string
-      value: string
-    }[]
-  }
-  startTime: number
-}
+import { IUser } from './user'
 
 export interface IQuiz {
   _id?: Types.ObjectId
-  admin: Types.ObjectId
+  admin: IUser
   managers?: Types.ObjectId[]
-  participants?: IParticipant[]
   isPublished: boolean
   isAcceptingAnswers: boolean
   resultsPublished: boolean

@@ -1,9 +1,8 @@
 import { Types } from 'mongoose'
-import { IParticipant } from 'types'
+import ParticipantModel from '@models/participant/participantModel'
 
-const isParticipant = (userId: Types.ObjectId, participants: IParticipant[] = []) => {
-  // equals() allows to compare objectId to string if equals is invoked by objectId
-  return participants.find((participant) => participant.userId?.equals(userId))
+const isParticipant = async (userId: Types.ObjectId, quizId: Types.ObjectId) => {
+  return await ParticipantModel.findOne({ userId, quizId })
 }
 
 export default isParticipant

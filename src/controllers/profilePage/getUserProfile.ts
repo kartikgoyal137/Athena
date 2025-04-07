@@ -1,22 +1,15 @@
 import { Request, Response } from 'express'
 import sendFailureResponse from '@utils/failureResponse'
 import QuizModel from '@models/quiz/quizModel'
-import { JwtPayload, ResponseStatus } from 'types'
+import { JwtPayload } from 'types'
 import UserModel from '@models/user/userModel'
-import { Types } from 'mongoose'
-import ResponseModel from '@models/response/responseModel'
+import ParticipantModel from '@models/participant/participantModel'
+import LeaderboardModel from '@models/leaderboard/leaderboardModel'
 
 interface getDashBoardRequest extends Request {
   body: {
     user: JwtPayload
   }
-}
-
-interface Participant {
-  userId: Types.ObjectId
-  marks: number
-  questionsAttempted: number
-  questionsChecked: number
 }
 
 const getUserProfile = async (req: getDashBoardRequest, res: Response) => {
@@ -26,76 +19,43 @@ const getUserProfile = async (req: getDashBoardRequest, res: Response) => {
     const createdQuizzes = await QuizModel.find({
       $or: [{ admin: user.userId }, { managers: user.userId }],
     })
-    const quizzes = await QuizModel.find({})
-    let attemptedQuizzes = 0
-    const quizDetails = quizzes
-      .filter((quiz) => quiz.isPublished)
-      .map(async (quiz) => {
-        if (quiz?.isPublished) {
-          const userStatus = quiz?.participants?.find(
-            (participant) => participant.userId && participant.userId.equals(user.userId),
-          )
-          if (userStatus?.submitted) {
-            attemptedQuizzes += 1
-            const creatorDocument = await UserModel.findById(quiz.admin)
 
-            const participants: Participant[] = []
-            await Promise.all(
-              quiz?.participants?.map(async (participant) => {
-                const responses = await ResponseModel.find({
-                  quizId: quiz._id,
-                  userId: participant.userId,
-                })
+    const attemptedQuizzes = await ParticipantModel.find({
+      userId: user.userId,
+      submitted: true,
+    }).populate({
+      path: 'quizId',
+      select: 'admin quizMetadata resultsPublished bannerImage',
+      populate: {
+        path: 'admin',
+        select: 'personalDetails.name',
+      },
+    })
 
-                let score = 0
-                let questionsAttempted = 0
-                let questionsChecked = 0
-
-                responses.forEach((response) => {
-                  score += response.marksAwarded || 0
-                  questionsAttempted++
-                  questionsChecked += response.status === ResponseStatus.checked ? 1 : 0
-                })
-
-                if (Types.ObjectId.isValid(participant.userId)) {
-                  const leaderboardEntry: Participant = {
-                    userId: participant.userId,
-                    marks: score,
-                    questionsAttempted: questionsAttempted,
-                    questionsChecked: questionsChecked,
-                  }
-                  participants.push(leaderboardEntry)
-                }
-              }) as Promise<void>[],
-            )
-            const sortedParticipants = participants.sort((a, b) => {
-              if (a.marks > b.marks) {
-                return -1
-              } else return 1
-            })
-            let rank = 0
-            for(let i=0; i<sortedParticipants.length; i++) {
-              if (sortedParticipants[i].userId == user.userId) {
-                rank=i+1
-                break
-              }
-            }
-
-            return {
-              _id: quiz._id,
-              creator: creatorDocument?.personalDetails?.name,
-              name: quiz?.quizMetadata?.name,
-              description: quiz?.quizMetadata?.description,
-              instructions: quiz?.quizMetadata?.instructions,
-              startDateTimestamp: quiz?.quizMetadata?.startDateTimestamp,
-              bannerImage: quiz?.quizMetadata?.bannerImage,
-              resultsPublished: quiz.resultsPublished,
-              totalParticipants: quiz.participants?.length,
-              rank: rank,
-            }
-          }
-        }
+    const quizDetails = attemptedQuizzes.map(async (participation) => {
+      const leaderboard = await LeaderboardModel.findOne({
+        quizId: participation.quizId._id,
+        sectionIndex: null,
       })
+      const rankIndex =
+        leaderboard?.participants.findIndex((p) => p.userId.equals(user.userId)) ?? -1
+      const rank = rankIndex + 1 || null
+      const totalParticipants = await ParticipantModel.countDocuments({
+        quizId: participation.quizId._id,
+      })
+      return {
+        _id: participation.quizId._id,
+        creator: participation.quizId.admin.personalDetails?.name,
+        name: participation.quizId.quizMetadata?.name,
+        description: participation.quizId.quizMetadata?.description,
+        instructions: participation.quizId.quizMetadata?.instructions,
+        startDateTimestamp: participation.quizId.quizMetadata?.startDateTimestamp,
+        bannerImage: participation.quizId.quizMetadata?.bannerImage,
+        resultsPublished: participation.quizId.resultsPublished,
+        totalParticipants: totalParticipants,
+        rank: rank,
+      }
+    })
     const userDocument = await UserModel.findById(user.userId)
     const userDetails = {
       firstName: userDocument?.personalDetails?.name.split(' ')[0] || '',
@@ -110,15 +70,15 @@ const getUserProfile = async (req: getDashBoardRequest, res: Response) => {
     }
 
     const resolvedQuizzes = await Promise.all(quizDetails)
-    const Quizzes = {
+    const quizzes = {
       createdQuizzes: createdQuizzes,
       quizzes: resolvedQuizzes,
-      attemptedQuizzes: attemptedQuizzes,
+      attemptedQuizzes: attemptedQuizzes.length,
       hostedQuizzes: createdQuizzes.length,
     }
     return res.status(200).send({
       message: 'User Profile details fetched',
-      quizzes: Quizzes,
+      quizzes: quizzes,
       userDetails: userDetails,
     })
   } catch (error: unknown) {

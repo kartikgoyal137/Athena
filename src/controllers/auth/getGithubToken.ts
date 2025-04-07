@@ -5,7 +5,7 @@ import { OAuthProviders, UserRoles, IUser, JwtPayload } from 'types'
 import { createToken } from '@utils/token'
 import { Types } from 'mongoose'
 import sendFailureResponse from '@utils/failureResponse'
-import { GITHUB_TOKEN_URL } from 'config'
+import { GITHUB_EMAIL_URL, GITHUB_TOKEN_URL, GITHUB_USER_URL } from 'config'
 
 const getGithubToken = async (req: Request, res: Response) => {
   try {
@@ -18,14 +18,14 @@ const getGithubToken = async (req: Request, res: Response) => {
     })
     const accessToken = response.data.split('&')[0].split('=')[1]
 
-    const githubUser = await axios.get(process.env.GITHUB_USER_URL!, {
+    const githubUser = await axios.get(GITHUB_USER_URL, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     })
 
     if (!githubUser.data.email) {
-      const emails = await axios.get(process.env.GITHUB_EMAIL_URL!, {
+      const emails = await axios.get(GITHUB_EMAIL_URL, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },

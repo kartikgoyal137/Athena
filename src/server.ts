@@ -14,13 +14,13 @@ import morgan from 'morgan'
 import mongoSanitize from 'express-mongo-sanitize'
 import logger from '@utils/logger'
 import profilePageRouter from '@routers/profilePage'
-import { FRONTEND_URLS } from 'config'
+import { FRONTEND_URLS, isProduction } from 'config'
 import cluster from 'cluster'
 import os from 'os'
 
 const numInstances = os.cpus().length
 
-if (cluster.isMaster) {
+if (cluster.isPrimary && isProduction) {
   console.log(`Master ${process.pid} is running`)
 
   // Fork workers.
@@ -28,7 +28,7 @@ if (cluster.isMaster) {
     cluster.fork()
   }
 
-  cluster.on('exit', (worker, code, signal) => {
+  cluster.on('exit', (worker) => {
     console.log(`Worker ${worker.process.pid} died`)
   })
 } else {

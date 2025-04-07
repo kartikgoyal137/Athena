@@ -8,6 +8,7 @@
     "start": "node -r ts-node/register/transpile-only -r tsconfig-paths/register build/server.js  ",
     "dev": "TS_NODE_FILES=true TS_NODE_TRANSPILE_ONLY=true nodemon src/server.ts",
     "lint": "eslint ./src",
+    "format": "prettier --write .",
     "prepare": "husky install"
   },
   "repository": {

@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
 import sendFailureResponse from '@utils/failureResponse'
-import QuestionModel from '@models/question/questionModel'
 import { QuestionTypes, ResponseStatus } from 'types'
 import QuizModel from '@models/quiz/quizModel'
 import ResponseModel from '@models/response/responseModel'
@@ -23,23 +22,20 @@ const autoCheck = async (req: autoCheckRequest, res: Response) => {
     quiz?.sections?.forEach(async (section) => {
       section?.questions?.forEach(async (question) => {
         if (question.type === QuestionTypes.MCQ && question.autoCheck) {
-          await ResponseModel.updateMany(
-            { quizId: quizId, questionId: question._id },
-            [
-              {
-                $set: {
-                  marksAwarded: {
-                    $cond: {
-                      if: { $setEquals: ['$selectedOptionId', question.correctAnswer] }, // Check if the arrays have the same elements
-                      then: question.maxMarks,
-                      else: 0,
-                    },
+          await ResponseModel.updateMany({ quizId: quizId, questionId: question._id }, [
+            {
+              $set: {
+                marksAwarded: {
+                  $cond: {
+                    if: { $setEquals: ['$selectedOptionId', question.correctAnswer] }, // Check if the arrays have the same elements
+                    then: question.maxMarks,
+                    else: 0,
                   },
-                  status: ResponseStatus.checked,
                 },
+                status: ResponseStatus.checked,
               },
-            ],
-          )
+            },
+          ])
         }
       })
     })

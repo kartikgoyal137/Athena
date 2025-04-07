@@ -4,7 +4,7 @@
     "es6": true
   },
   "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
-  
+
   // overrides are used to disable the ban-ts-comment rule for startQuizScheduler and endQuizScheduler
   // also for some async parts of the timer
   "overrides": [
