@@ -5,7 +5,7 @@ on:
     branches: [ "releases" ]
 
 env:
-  REGISTRY: kratos.sdslabs.com
+  REGISTRY: kratos.sdslabs.org
   IMAGE_NAME: athena/backend
   CONTAINER_NAME: athena-backend
 
